@@ -519,7 +519,7 @@ std::shared_ptr<CWallet> RestoreWallet(WalletContext& context, const fs::path& b
     } catch (const std::exception& e) {
         assert(!wallet);
         if (!error.empty()) error += Untranslated("\n");
-        error += strprintf(Untranslated("Unexpected exception: %s"), e.what());
+        error += Untranslated(strprintf("Unexpected exception: %s", e.what()));
     }
     if (!wallet) {
         fs::remove_all(wallet_path);
@@ -4406,6 +4406,9 @@ util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& walle
         const auto& wallet_path = GetWalletPath(wallet_name);
         if (!wallet_path) {
             return util::Error{util::ErrorString(wallet_path)};
+        }
+        if (!fs::exists(*wallet_path)) {
+            return util::Error{_("Error: Wallet does not exist")};
         }
         if (!IsBDBFile(BDBDataFile(*wallet_path))) {
             return util::Error{_("Error: This wallet is already a descriptor wallet")};
